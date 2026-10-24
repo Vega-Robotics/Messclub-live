@@ -451,7 +451,7 @@
         <p class="lead">Join the MessClub Ambassador community and help bring the platform to more students.</p>
       </div>
       <div class="cta-buttons">
-        <a href="#" class="btn btn-primary" data-config-link="ambassadorUrl" data-external>BECOME AN AMBASSADOR</a>
+        <a href="#" class="btn btn-primary" data-config-link="ambassadorUrl" data-external data-soon="The Ambassador program is coming soon. Stay tuned!">BECOME AN AMBASSADOR</a>
       </div>
     </div>
   </div>
@@ -593,5 +593,16 @@
 </footer>
 
 <script src="js/script.js"></script>
+<script>
+  /* "Coming soon" message for any link marked data-soon whose real URL isn't set yet.
+     Once you add the real link in js/script.js (ambassadorUrl), the button works normally and this stays silent. */
+  document.addEventListener("click", function (e) {
+    var link = e.target.closest("[data-soon]");
+    if (!link || link.getAttribute("href") !== "#") return;
+    e.preventDefault();
+    e.stopPropagation();
+    toast(link.getAttribute("data-soon"));
+  }, true);
+</script>
 </body>
 </html>
