@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MessClub — FIND IT. TOKEN IT. EAT IT.</title>
+  <meta name="description" content="MessClub makes discovering, subscribing to and accessing everyday meals simpler for students, professionals and local food providers.">
+  <meta name="theme-color" content="#0A0A0A">
+
+  <!-- Open Graph / Twitter. CHANGE: replace og:url and og:image with your real domain + a 1200x630 image once hosted -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="MessClub — FIND IT. TOKEN IT. EAT IT.">
+  <meta property="og:description" content="Discover local messes. Choose your plan. Get your tokens. Reserve your meals. — All from one simple platform.">
+  <meta property="og:image" content="assets/images/og-image.png">
+  <meta property="og:url" content="https://YOUR-DOMAIN-HERE/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MessClub — FIND IT. TOKEN IT. EAT IT.">
+  <meta name="twitter:description" content="Discover. Subscribe. Reserve. Eat.">
+  <meta name="twitter:image" content="assets/images/og-image.png">
+
+  <link rel="icon" href="assets/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- FIXED: Bebas Neue added (used for all big headings); unused Syne removed -->
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    /* ===== App showcase: alternating desktop flow =====
+       Desktop (921px and up): each app screen gets its own row, alternating image-left / image-right.
+       Mobile / tablet (920px and below): unchanged, the original single phone with tap chips. */
+    .app-flow { display: none; }
+
+    @media (min-width: 921px) {
+      .app-grid, .app-chips { display: none; }
+      .app-flow { display: block; }
+
+      .flow-row { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(40px, 7vw, 110px); align-items: center; padding: clamp(30px, 5vw, 64px) 0; }
+      .flow-row:nth-child(even) .flow-phone { order: 2; }   /* even rows: text on the left, phone on the right */
+      .flow-row:nth-child(even) .flow-text { justify-self: end; }
+
+      .flow-phone { display: grid; place-items: center; perspective: 1200px; }
+      .flow-phone .phone { width: 290px; transform: rotateY(10deg) rotateX(3deg); transition: transform .5s ease; }
+      .flow-row:nth-child(even) .flow-phone .phone { transform: rotateY(-10deg) rotateX(3deg); }
+      .flow-row:hover .flow-phone .phone { transform: none; }
+
+      .flow-text { max-width: 440px; }
+      .flow-num { display: block; font-family: var(--font-ui); font-weight: 700; font-size: .85rem; letter-spacing: .3em; color: var(--rose); margin-bottom: 14px; }
+      .flow-text h3 { font-size: clamp(2.6rem, 5vw, 4rem); }
+      .flow-text p { color: var(--muted); margin-top: 14px; font-size: 1.1rem; max-width: 40ch; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============ PAGE LOADER ============ -->
+<div class="loader" id="loader" aria-hidden="true">
+  <!-- Loader logo: uses assets/logo.png. If the file is missing, it falls back to the "M" -->
+  <div class="loader-mark"><img src="assets/logo.png" alt="" style="width:110px;height:110px;object-fit:contain;display:block;" onerror="this.parentNode.textContent='M'"></div>
+  <div class="loader-word">MESSCLUB</div>
+</div>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- FIXED: custom cursor element (pink arrow). The comet tail dots are created by js/script.js -->
+<div class="cursor" id="cursor" aria-hidden="true">
+  <svg viewBox="0 0 24 28" xmlns="http://www.w3.org/2000/svg" focusable="false">
+    <path d="M3 3 L3 23 L8.2 18.2 L11.8 26 L15.2 24.5 L11.7 16.8 L19 16.8 Z"/>
+  </svg>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- ============ NAVBAR ============ -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#home" class="brand" aria-label="MessClub home">
+      <!-- CHANGE: put your logo at assets/logo.png (white version: assets/logo-white.png). If missing, the "M" mark shows. -->
+      <span class="brand-mark" data-logo><span class="brand-fallback">M</span></span>
+      <span class="brand-name">MESSCLUB</span>
+    </a>
+
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#home" data-nav="home">Home</a>
+      <a href="#problem" data-nav="problem">Problem</a>
+      <a href="#solution" data-nav="solution">Solution</a>
+      <a href="#how" data-nav="how">How It Works</a>
+      <a href="#join" data-nav="join">Join</a>
+      <a href="#faq" data-nav="faq">FAQ</a>
+      <a href="#contact" data-nav="contact">Contact</a>
+    </nav>
+
+    <a href="#join" class="btn btn-sm btn-primary nav-cta" data-config-link="playStoreUrl" data-external>GET THE APP</a>
+    <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu"><span></span><span></span></button>
+  </div>
+</header>
+
+<!-- Full-screen mobile menu (all 10 sections) -->
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+  <nav aria-label="Mobile">
+    <a href="#home">Home</a>
+    <a href="#problem">Problem</a>
+    <a href="#solution">Solution</a>
+    <a href="#how">How It Works</a>
+    <a href="#tokens">Tokens</a>
+    <a href="#app">App</a>
+    <a href="#foryou">For You</a>
+    <a href="#join">Join</a>
+    <a href="#faq">FAQ</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <a href="#join" class="btn btn-primary btn-block" data-config-link="playStoreUrl" data-external>GET THE APP</a>
+</div>
+
+<button class="to-top" id="toTop" aria-label="Back to top">↑</button>
+
+<main id="main">
+
+<!-- ============ 1. HERO ============ -->
+<section class="hero" id="home">
+  <div class="glow glow-blue" data-parallax="0.15"></div>
+  <div class="glow glow-rose" data-parallax="-0.1"></div>
+
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <p class="hero-brand a-in" style="--d:0s">MESSCLUB</p>
+      <h1 class="hero-title">
+        <span class="line a-in" style="--d:.1s">FOOD PLANS,</span>
+        <span class="line a-in" style="--d:.2s"><span class="grad-text">WITHOUT</span></span>
+        <span class="line a-in" style="--d:.3s">THE CHAOS.</span>
+      </h1>
+      <p class="hero-sub a-in" style="--d:.4s">Discover local messes. Choose your plan. Get your tokens. Reserve your meals. — All from one simple platform.</p>
+      <p class="hero-verbs a-in" style="--d:.5s"><span>Discover.</span> <span>Subscribe.</span> <span>Reserve.</span> <span>Eat.</span></p>
+      <div class="hero-cta a-in" style="--d:.6s">
+        <a href="#join" class="btn btn-primary" data-config-link="playStoreUrl" data-external>GET THE APP</a>
+        <a href="#explore" class="btn btn-ghost">EXPLORE MESSCLUB ↓</a>
+      </div>
+    </div>
+
+    <div class="hero-stage a-in" style="--d:.7s">
+      <div class="phone-3d" id="heroPhone">
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="shot" data-src="assets/app/home.png" data-label="Home"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating illustrative cards -->
+      <div class="float-card fc-token a-in" style="--d:1s">
+        <span class="fc-label">TOKENS</span>
+        <strong class="fc-big">56</strong>
+        <span class="fc-sub">28 days · 2 / day</span>
+      </div>
+      <div class="float-card fc-res a-in" style="--d:1.15s">
+        <span class="fc-dot"></span>
+        <div><strong>Lunch reserved</strong><span>Your ticket is ready</span></div>
+      </div>
+      <div class="float-card fc-ticket a-in" style="--d:1.3s">
+        <span class="fc-label">DIGITAL TICKET</span>
+        <strong class="fc-code">MEAL-8F72K</strong>
+        <span class="fc-qr" aria-hidden="true"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. SCROLL INVITATION ============ -->
+<section class="invite" id="explore">
+  <div class="container">
+    <h2 class="invite-title reveal">WANT TO KNOW WHAT MESSCLUB ACTUALLY DOES?</h2>
+    <a href="#problem" class="invite-link reveal">
+      <span>EXPLORE THE PLATFORM</span>
+      <span class="arrow-down" aria-hidden="true">↓</span>
+    </a>
+  </div>
+</section>
+
+<!-- ============ 3. PROBLEM ============ -->
+<section class="section alt" id="problem">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2 class="h2">FINDING YOUR EVERYDAY MEAL SHOULDN'T BE THIS <span class="grad-text">HARD.</span></h2>
+      <p class="lead">For many students and working professionals, finding a reliable everyday meal option can still involve unnecessary searching, uncertainty and manual processes.</p>
+    </div>
+
+    <div class="grid grid-3">
+      <article class="card glass reveal"><span class="card-emoji">📍</span><h3>Finding the right mess</h3><p>Finding a suitable mess around you can take time, especially when you don't know which options are actually available nearby.</p></article>
+      <article class="card glass reveal"><span class="card-emoji">🍱</span><h3>Not knowing what's available</h3><p>It can be difficult to know which messes offer meals, what plans they have, and whether they're suitable for your daily routine.</p></article>
+      <article class="card glass reveal"><span class="card-emoji">💬</span><h3>Too much manual coordination</h3><p>Calling or messaging mess owners to ask about plans, availability, timings, or meal access can become repetitive and inconvenient.</p></article>
+      <article class="card glass reveal"><span class="card-emoji">📅</span><h3>Managing your daily meals</h3><p>Keeping track of your subscription and remembering where, when, and how you can use your meal access isn't always simple.</p></article>
+      <article class="card glass reveal"><span class="card-emoji">🎟️</span><h3>No simple way to reserve</h3><p>Traditional mess systems often don't provide an easy digital way to reserve your meal and confirm your access before visiting.</p></article>
+      <article class="card glass reveal"><span class="card-emoji">📱</span><h3>Everything is scattered</h3><p>Finding a mess, choosing a plan, managing meal access, making reservations, and keeping track of everything can happen through different channels instead of one simple platform.</p></article>
+    </div>
+
+    <!-- Visual journey: old way -> MessClub way -->
+    <div class="journey reveal" aria-label="The old way compared with the MessClub way">
+      <p class="journey-label">THE OLD WAY</p>
+      <ol class="chain chain-old">
+        <li>SEARCH</li><li>CALL</li><li>ASK</li><li>COMPARE</li><li>CONFIRM</li><li>MANAGE MANUALLY</li>
+      </ol>
+      <div class="journey-shift" aria-hidden="true"><span></span></div>
+      <p class="journey-label journey-label-new">THE MESSCLUB WAY</p>
+      <ol class="chain chain-new">
+        <li>DISCOVER</li><li>CHOOSE</li><li>SUBSCRIBE</li><li>TOKEN</li><li>RESERVE</li><li>DIGITAL TICKET</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. SOLUTION ============ -->
+<section class="section" id="solution">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2 class="h2">SO WE BUILT A <span class="grad-text">SIMPLER</span> WAY.</h2>
+      <p class="statement">MESSCLUB BRINGS YOUR EVERYDAY MEAL JOURNEY INTO ONE PLATFORM.</p>
+      <p class="lead">MessClub is a digital platform designed to connect customers with local mess/food providers and make discovering, subscribing to and accessing everyday meals simpler.</p>
+    </div>
+
+    <div class="grid grid-3 tilt-grid">
+      <article class="card glass tilt reveal"><span class="icon-ring">🔎</span><h3>Discover Messes Easily</h3><p>Find available messes and food providers around you through one simple platform instead of searching manually.</p></article>
+      <article class="card glass tilt reveal"><span class="icon-ring">🍱</span><h3>Explore Your Options</h3><p>View available messes, their information, meal options, and subscription plans in one place.</p></article>
+      <article class="card glass tilt reveal"><span class="icon-ring">⚡</span><h3>Everything in One App</h3><p>No more switching between calls, WhatsApp messages, and offline conversations. Manage your meal access directly through MessClub.</p></article>
+      <article class="card glass tilt reveal"><span class="icon-ring">🎟️</span><h3>Simple Token-Based Access</h3><p>Get tokens with your subscription and use them for eligible meal reservations without dealing with complicated manual tracking.</p></article>
+      <article class="card glass tilt reveal"><span class="icon-ring">📲</span><h3>Reserve Before You Visit</h3><p>Reserve your meal through the app and get a digital ticket so your meal access is clear before you reach the mess.</p></article>
+      <article class="card glass tilt reveal"><span class="icon-ring">✅</span><h3>Easy Meal Management</h3><p>Keep your subscription, token balance, reservations, and digital tickets organized in one place.</p></article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5. HOW IT WORKS ============ -->
+<section class="section alt" id="how">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2 class="h2">FROM DISCOVERY TO <span class="grad-text">DINNER.</span></h2>
+    </div>
+
+    <ol class="timeline" id="timeline">
+      <li class="t-step"><span class="t-num">01</span><div><h3>DOWNLOAD</h3><p>Get the MessClub app.</p></div></li>
+      <li class="t-step"><span class="t-num">02</span><div><h3>EXPLORE</h3><p>Discover available messes and food providers.</p></div></li>
+      <li class="t-step"><span class="t-num">03</span><div><h3>CHOOSE</h3><p>Select a subscription that suits you.</p></div></li>
+      <li class="t-step"><span class="t-num">04</span><div><h3>GET TOKENS</h3><p>Your plan provides meal-access tokens.</p></div></li>
+      <li class="t-step"><span class="t-num">05</span><div><h3>RESERVE</h3><p>Use your token to reserve your meal.</p></div></li>
+      <li class="t-step"><span class="t-num">06</span><div><h3>GET YOUR TICKET</h3><p>Your reservation generates a digital ticket.</p></div></li>
+      <li class="t-step"><span class="t-num">07</span><div><h3>VISIT</h3><p>Go to the selected mess within the meal's serving time.</p></div></li>
+      <li class="t-step"><span class="t-num">08</span><div><h3>GET SERVED</h3><p>Show your ticket and enjoy your meal.</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ 6. TOKENS ============ -->
+<section class="section" id="tokens">
+  <div class="container tokens-grid">
+    <div class="reveal">
+      <h2 class="h2">ONE SUBSCRIPTION. YOUR TOKENS. <span class="grad-text">YOUR CHOICE.</span></h2>
+      <p class="lead">MessClub uses tokens to make meal access simple and easy to understand. One token is one meal — a lunch and a dinner every day.</p>
+
+      <div class="duration-tabs" role="tablist" aria-label="Choose a plan length">
+        <button role="tab" aria-selected="false" data-days="5" data-tokens="10">5 DAYS</button>
+        <button role="tab" aria-selected="false" data-days="10" data-tokens="20">10 DAYS</button>
+        <button role="tab" aria-selected="false" data-days="15" data-tokens="30">15 DAYS</button>
+        <button role="tab" aria-selected="true" data-days="28" data-tokens="56">28 DAYS</button>
+      </div>
+
+      <ul class="token-facts">
+        <li><strong>Your plan, your pace.</strong> Tokens don't vanish on a calendar date — you keep them until you've used them.</li>
+        <li><strong>Plans for every budget.</strong> Silver, Golden and Premium give you wider and wider choice of messes.</li>
+        <li><strong>New here?</strong> A one-day first-time trial lets you try 2 tokens at any approved mess.</li>
+      </ul>
+    </div>
+
+    <div class="token-stage reveal">
+      <div class="token-3d" id="token3d">
+        <div class="token">
+          <span class="token-top">TOKENS</span>
+          <strong class="token-num" id="tokenNum" data-count="56">56</strong>
+          <span class="token-days" id="tokenDays">28 DAYS</span>
+          <span class="token-rate">2 / DAY</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 7 + 8. APP SHOWCASE + INTERACTIVE PHONE ============ -->
+<section class="section alt" id="app">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2 class="h2">MEET THE <span class="grad-text">MESSCLUB</span> APP.</h2>
+      <p class="lead">Follow the journey, one screen at a time.</p>
+    </div>
+
+    <div class="app-grid">
+      <div class="app-phone-col">
+        <div class="phone-3d phone-sticky">
+          <div class="phone">
+            <div class="phone-notch"></div>
+            <div class="phone-screen" id="appScreen">
+              <div class="shot is-active" data-src="assets/app/home.png" data-label="Home"></div>
+              <div class="shot" data-src="assets/app/hotels.png" data-label="Explore hotels"></div>
+              <div class="shot" data-src="assets/app/subscription.png" data-label="Subscription plans"></div>
+              <div class="shot" data-src="assets/app/tokens.png" data-label="Token balance"></div>
+              <div class="shot" data-src="assets/app/reservation.png" data-label="Reservation"></div>
+              <div class="shot" data-src="assets/app/ticket.png" data-label="Digital ticket"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="app-steps" id="appSteps">
+        <div class="app-step is-active" data-screen="0"><h3>Welcome to MessClub</h3><p>Choose your role and step into a simpler way to discover, subscribe and manage your everyday meals.</p></div>
+        <div class="app-step" data-screen="1"><h3>Explore hotels</h3><p>Browse messes near you with timings, photos, menus and ratings. Call or get directions in one tap.</p></div>
+        <div class="app-step" data-screen="2"><h3>Subscription plans</h3><p>Pick Silver, Golden or Premium, then choose how many days you want.</p></div>
+        <div class="app-step" data-screen="3"><h3>Token balance</h3><p>Know exactly how many tokens you have left on your plan.</p></div>
+        <div class="app-step" data-screen="4"><h3>Reservation</h3><p>Reserve your lunch or dinner. Your reservation stays valid until that meal's serving time ends.</p></div>
+        <div class="app-step" data-screen="5"><h3>Digital ticket</h3><p>Show your ticket at the mess. The mess marks it served — nothing to print, nothing to carry.</p></div>
+      </div>
+    </div>
+
+    <!-- DESKTOP FLOW: one row per screen, alternating image left / image right (hidden on mobile) -->
+    <div class="app-flow">
+      <div class="flow-row reveal">
+        <div class="flow-phone"><div class="phone"><div class="phone-notch"></div><div class="phone-screen"><div class="shot" data-src="assets/app/home.png" data-label="Home"></div></div></div></div>
+        <div class="flow-text"><span class="flow-num">01</span><h3>Welcome to MessClub</h3><p>Choose your role and step into a simpler way to discover, subscribe and manage your everyday meals.</p></div>
+      </div>
+      <div class="flow-row reveal">
+        <div class="flow-phone"><div class="phone"><div class="phone-notch"></div><div class="phone-screen"><div class="shot" data-src="assets/app/hotels.png" data-label="Explore hotels"></div></div></div></div>
+        <div class="flow-text"><span class="flow-num">02</span><h3>Explore hotels</h3><p>Browse messes near you with timings, photos, menus and ratings. Call or get directions in one tap.</p></div>
+      </div>
+      <div class="flow-row reveal">
+        <div class="flow-phone"><div class="phone"><div class="phone-notch"></div><div class="phone-screen"><div class="shot" data-src="assets/app/subscription.png" data-label="Subscription plans"></div></div></div></div>
+        <div class="flow-text"><span class="flow-num">03</span><h3>Subscription plans</h3><p>Pick Silver, Golden or Premium, then choose how many days you want.</p></div>
+      </div>
+      <div class="flow-row reveal">
+        <div class="flow-phone"><div class="phone"><div class="phone-notch"></div><div class="phone-screen"><div class="shot" data-src="assets/app/tokens.png" data-label="Token balance"></div></div></div></div>
+        <div class="flow-text"><span class="flow-num">04</span><h3>Token balance</h3><p>Know exactly how many tokens you have left on your plan.</p></div>
+      </div>
+      <div class="flow-row reveal">
+        <div class="flow-phone"><div class="phone"><div class="phone-notch"></div><div class="phone-screen"><div class="shot" data-src="assets/app/reservation.png" data-label="Reservation"></div></div></div></div>
+        <div class="flow-text"><span class="flow-num">05</span><h3>Reservation</h3><p>Reserve your lunch or dinner. Your reservation stays valid until that meal's serving time ends.</p></div>
+      </div>
+      <div class="flow-row reveal">
+        <div class="flow-phone"><div class="phone"><div class="phone-notch"></div><div class="phone-screen"><div class="shot" data-src="assets/app/ticket.png" data-label="Digital ticket"></div></div></div></div>
+        <div class="flow-text"><span class="flow-num">06</span><h3>Digital ticket</h3><p>Show your ticket at the mess. The mess marks it served — nothing to print, nothing to carry.</p></div>
+      </div>
+    </div>
+
+    <!-- Tap to jump (also the main control on mobile) -->
+    <div class="app-chips" id="appChips" role="tablist" aria-label="App screens">
+      <button role="tab" aria-selected="true" data-screen="0">Home</button>
+      <button role="tab" aria-selected="false" data-screen="1">Hotels</button>
+      <button role="tab" aria-selected="false" data-screen="2">Plans</button>
+      <button role="tab" aria-selected="false" data-screen="3">Tokens</button>
+      <button role="tab" aria-selected="false" data-screen="4">Reserve</button>
+      <button role="tab" aria-selected="false" data-screen="5">Ticket</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 9. WHO IS IT FOR ============ -->
+<section class="section" id="foryou">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2 class="h2">WHO IS <span class="grad-text">MESSCLUB</span> FOR?</h2>
+    </div>
+    <div class="grid grid-3">
+      <article class="card glass big-card tilt reveal">
+        <span class="card-emoji">🎓</span>
+        <h3>STUDENTS</h3>
+        <p>Discover everyday meal options around you and manage your meal access from one app.</p>
+        <a href="#join" class="btn btn-ghost btn-sm">EXPLORE FOR STUDENTS</a>
+      </article>
+      <article class="card glass big-card tilt reveal">
+        <span class="card-emoji">💼</span>
+        <h3>WORKING PROFESSIONALS</h3>
+        <p>Make your everyday meal routine simpler and more organized.</p>
+        <a href="#join" class="btn btn-ghost btn-sm">EXPLORE</a>
+      </article>
+      <article class="card glass big-card tilt reveal">
+        <span class="card-emoji">🏪</span>
+        <h3>MESS &amp; FOOD PARTNERS</h3>
+        <p>Bring your mess online and connect with more customers.</p>
+        <a href="#partners" class="btn btn-ghost btn-sm">JOIN MESSCLUB</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 10. WHY ============ -->
+<section class="section alt" id="why">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2 class="h2">WHY PEOPLE CHOOSE <span class="grad-text">MESSCLUB.</span></h2>
+    </div>
+    <div class="grid grid-3">
+      <article class="card glass hover-glow reveal"><span class="card-emoji">📱</span><h3>DIGITAL</h3><p>Everything in one platform.</p></article>
+      <article class="card glass hover-glow reveal"><span class="card-emoji">⚡</span><h3>SIMPLE</h3><p>Less manual work.</p></article>
+      <article class="card glass hover-glow reveal"><span class="card-emoji">📍</span><h3>DISCOVERABLE</h3><p>Find available meal providers.</p></article>
+      <article class="card glass hover-glow reveal"><span class="card-emoji">🎟️</span><h3>ORGANIZED</h3><p>Digital reservations and tickets.</p></article>
+      <article class="card glass hover-glow reveal"><span class="card-emoji">🔄</span><h3>CONVENIENT</h3><p>Manage your meal access easily.</p></article>
+      <article class="card glass hover-glow reveal"><span class="card-emoji">🤝</span><h3>CONNECTED</h3><p>Customers and local food providers in one ecosystem.</p></article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 11. JOIN / DOWNLOAD ============ -->
+<section class="section join" id="join">
+  <div class="glow glow-blue" data-parallax="0.08"></div>
+  <div class="glow glow-rose" data-parallax="-0.08"></div>
+  <div class="container">
+    <div class="section-head reveal">
+      <h2 class="h2">READY TO MAKE YOUR MEALS <span class="grad-text">SIMPLER?</span></h2>
+      <p class="lead">Download MessClub and explore the platform.</p>
+    </div>
+
+    <div class="download-card glass reveal">
+      <h3>DOWNLOAD MESSCLUB</h3>
+      <p>Scan the QR code and get the app.</p>
+      <div class="qr-box">
+        <!-- CHANGE: put your real QR image at assets/qr/playstore-qr.png -->
+        <div class="shot shot-qr" data-src="assets/qr/playstore-qr.png" data-label="Play Store QR"></div>
+      </div>
+      <a href="#" class="btn btn-primary" data-config-link="playStoreUrl" data-external>GET THE APP</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 12. PARTNERS ============ -->
+<section class="section" id="partners">
+  <div class="container">
+    <div class="cta-band glass reveal">
+      <div>
+        <h2 class="h3">ARE YOU A MESS OWNER?</h2>
+        <p class="lead">Bring your mess online and connect with customers through MessClub. List your profile and menu, post your daily lunch and dinner, and see who's reserving.</p>
+      </div>
+      <div class="cta-buttons">
+        <a href="#" class="btn btn-primary" data-config-mailto="partner">JOIN AS A PARTNER</a>
+        <a href="#contact" class="btn btn-ghost">CONTACT US</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 13. AMBASSADORS ============ -->
+<section class="section tight" id="ambassadors">
+  <div class="container">
+    <div class="cta-band glass reveal">
+      <div>
+        <h2 class="h3">WANT TO REPRESENT MESSCLUB ON YOUR CAMPUS?</h2>
+        <p class="lead">Join the MessClub Ambassador community and help bring the platform to more students.</p>
+      </div>
+      <div class="cta-buttons">
+        <a href="#" class="btn btn-primary" data-config-link="ambassadorUrl" data-external>BECOME AN AMBASSADOR</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 14. VISION ============ -->
+<section class="section vision" id="vision">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2 class="h2">THIS IS JUST THE <span class="grad-text">BEGINNING.</span></h2>
+      <p class="lead">We're building toward a more connected everyday food ecosystem where customers, local food providers and communities can discover and interact through technology.</p>
+    </div>
+    <div class="float-words" aria-hidden="true">
+      <span style="--i:0">DISCOVER</span>
+      <span style="--i:1">CONNECT</span>
+      <span style="--i:2">SUBSCRIBE</span>
+      <span style="--i:3">RESERVE</span>
+      <span style="--i:4">EAT</span>
+      <span style="--i:5">GROW</span>
+    </div>
+    <p class="soon reveal"><span class="soon-tag">COMING SOON</span> More ways to connect — we'll share them here when they're live.</p>
+  </div>
+</section>
+
+<!-- ============ 15. FAQ ============ -->
+<section class="section alt" id="faq">
+  <div class="container narrow">
+    <div class="section-head reveal">
+      <h2 class="h2">QUESTIONS? <span class="grad-text">ANSWERED.</span></h2>
+    </div>
+
+    <div class="faq reveal" id="faqList">
+      <div class="faq-item">
+        <h3><button class="faq-q" aria-expanded="false">What is MessClub?<span class="faq-icon" aria-hidden="true"></span></button></h3>
+        <div class="faq-a"><div><p>MessClub is a digital platform designed to make discovering, subscribing to and accessing everyday meals through local mess/food providers simpler.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <h3><button class="faq-q" aria-expanded="false">Who can use MessClub?<span class="faq-icon" aria-hidden="true"></span></button></h3>
+        <div class="faq-a"><div><p>Students, working professionals and other customers who want convenient access to everyday meal options.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <h3><button class="faq-q" aria-expanded="false">How does a MessClub subscription work?<span class="faq-icon" aria-hidden="true"></span></button></h3>
+        <div class="faq-a"><div><p>Customers choose an available plan and receive tokens that can be used for eligible meal reservations.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <h3><button class="faq-q" aria-expanded="false">What are tokens?<span class="faq-icon" aria-hidden="true"></span></button></h3>
+        <div class="faq-a"><div><p>Tokens represent meal-access units provided through your subscription.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <h3><button class="faq-q" aria-expanded="false">What is a digital ticket?<span class="faq-icon" aria-hidden="true"></span></button></h3>
+        <div class="faq-a"><div><p>After reserving an eligible meal, the app provides a digital reservation ticket that can be used at the selected mess.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <h3><button class="faq-q" aria-expanded="false">Can mess owners join MessClub?<span class="faq-icon" aria-hidden="true"></span></button></h3>
+        <div class="faq-a"><div><p>Yes. Mess and food providers can contact MessClub to explore joining the platform.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <h3><button class="faq-q" aria-expanded="false">Where can I download the app?<span class="faq-icon" aria-hidden="true"></span></button></h3>
+        <div class="faq-a"><div><p>Use the Google Play download button or scan the QR code on this website.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <h3><button class="faq-q" aria-expanded="false">How can I contact MessClub?<span class="faq-icon" aria-hidden="true"></span></button></h3>
+        <div class="faq-a"><div><p>Use the Contact section below or the available support channels.</p></div></div>
+      </div>
+      <!-- + Add More Questions: copy any <div class="faq-item"> block above, paste it here, and edit the question + answer. -->
+    </div>
+  </div>
+</section>
+
+<!-- ============ 16. CONTACT ============ -->
+<section class="section" id="contact">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2 class="h2">NEED <span class="grad-text">HELP?</span></h2>
+      <p class="lead">We're here to help.</p>
+    </div>
+
+    <div class="grid grid-3 contact-cards">
+      <article class="card glass reveal">
+        <span class="card-emoji">📧</span><h3>EMAIL</h3>
+        <a class="contact-link" href="#" data-config-text="supportEmail" data-config-mailto="support">support@example.com</a>
+      </article>
+      <article class="card glass reveal">
+        <span class="card-emoji">📱</span><h3>SOCIAL</h3>
+        <a class="contact-link" href="#" data-config-link="instagramUrl" data-external>Instagram</a>
+      </article>
+      <article class="card glass reveal">
+        <span class="card-emoji">💬</span><h3>SUPPORT</h3>
+        <a class="contact-link" href="#contactForm">Contact MessClub</a>
+      </article>
+    </div>
+
+    <form class="contact-form glass reveal" id="contactForm" novalidate>
+      <div class="field"><label for="cf-name">Full name</label><input id="cf-name" name="name" type="text" autocomplete="name" required></div>
+      <div class="field"><label for="cf-email">Email</label><input id="cf-email" name="email" type="email" autocomplete="email" required></div>
+      <div class="field full"><label for="cf-subject">Subject</label><input id="cf-subject" name="subject" type="text" required></div>
+      <div class="field full"><label for="cf-message">Message</label><textarea id="cf-message" name="message" rows="5" required></textarea></div>
+      <p class="form-note" id="formNote" role="alert"></p>
+      <button type="submit" class="btn btn-primary">SEND MESSAGE</button>
+    </form>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="container footer-grid">
+    <div>
+      <p class="footer-brand">MESSCLUB</p>
+      <p class="muted">Your everyday meals. Simplified.</p>
+    </div>
+    <nav aria-label="Footer">
+      <h4>Explore</h4>
+      <a href="#home">Home</a>
+      <a href="#how">How It Works</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact">Contact</a>
+      <a href="#join" data-config-link="playStoreUrl" data-external>Download App</a>
+    </nav>
+    <div>
+      <h4>Community</h4>
+      <a href="#" data-config-link="instagramUrl" data-external>Instagram</a>
+      <a href="#" data-config-link="linkedinUrl" data-external>LinkedIn</a>
+      <a href="#foryou">Students</a>
+      <a href="#partners">Mess Partners</a>
+      <a href="#ambassadors">Ambassadors</a>
+    </div>
+    <div>
+      <h4>Legal</h4>
+      <!-- These two hide themselves until you add real URLs in js/script.js (privacyUrl / termsUrl) -->
+      <a href="#" data-config-link="privacyUrl" data-hide-if-empty>Privacy Policy</a>
+      <a href="#" data-config-link="termsUrl" data-hide-if-empty>Terms</a>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <p class="muted">© <span id="year">2026</span> MessClub. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="js/script.js"></script>
+</body>
+</html>
