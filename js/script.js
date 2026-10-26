@@ -11,7 +11,7 @@ const MESSCLUB_CONFIG = {
   supportEmail: "messclubteam@gmail.com",          // e.g. support@yourdomain.com
   instagramUrl: "https://instagram.com/_messclub_",          // e.g. https://instagram.com/messclub
   linkedinUrl: "YOUR_LINKEDIN_URL",            // e.g. https://linkedin.com/company/messclub
-  ambassadorUrl: "YOUR_AMBASSADOR_URL",        // future Ambassador site / application form
+  ambassadorUrl: "https://messclub-ambassador-site.onrender.com/",        // future Ambassador site / application form
   privacyUrl: "",                              // leave "" to hide the footer link until the page exists
   termsUrl: ""                                 // leave "" to hide the footer link until the page exists
 };
